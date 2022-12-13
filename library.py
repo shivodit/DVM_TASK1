@@ -8,7 +8,7 @@ DAT_FILE = "PROG.dat"
 
 
 class Book():
-    def _init_(self,name,author,isbn):
+    def __init__(self,name,author,isbn):
         self.name = name
         self.author = author
         self.isbn = isbn
@@ -39,23 +39,23 @@ class Book():
             return False        
 
     def __str__(self):
-        print("{:13} | {:13} | {:13} | ".format(self.name,self.author,self.isbn))
+        print("{:13} | {:13} | {:13} ".format(self.name,self.author,self.isbn))
 
 class Shelf():
     def __init__(self,genre):
         self.genre = genre
-        self.catalog = {}
+        self.catalog = []
 
     def show_catalog(self):
-        print("{:13} | {:25} | {:35} | {:20}".format("NAME","AUTHOR","ISBN"))
+        print("{:13} | {:25} | {:35} ".format("NAME","AUTHOR","ISBN"))
         for i in self.catalog:
-            print(self.catalog[i])
+            print(i)
 
     def add_book(self,book,user_type):
         if user_type != "LIB":
             print("Not Authorized! ")
             return 
-        self.catalog[self.get_books_count] = book
+        self.catalog.append(book)
 
     def remove_book(self,index,user_type):
         if user_type != "LIB":
@@ -70,14 +70,15 @@ class Shelf():
     def get_books_count(self):
         return len(self.catalog)
 
-    def populate_book(self,file_name):
+    def populate_book(self,file_name,user_type):
         workbook = xl.load_workbook(filename=file_name)
         sheet = workbook.active
         dim = sheet.calculate_dimension()
         for row in sheet[dim]:
-            if row[0]=="Name":
+            if row[0].value in ("Name",""):
                 continue
-            self.add_book(Book(**tuple(row)))
+            
+            self.add_book(Book(*[i.value for i in row]),user_type)
     
     def __str__(self):
         return f"genre - {self.genre} total books - {self.get_books_count()}"
@@ -136,14 +137,14 @@ def select_shelf(shelves):
             return 0
 
 
-while 1:
-    i = input(">> ")
-    if i == "^Z":
-        break
-    try:
-        print(eval(i))
-    except:
-        print(exec(i))
+# while 1:
+#     i = input(">> ")
+#     if i == "^Z":
+#         break
+#     try:
+#         print(eval(i))
+#     except:
+#         print(exec(i))
 
 
 database = fetch_prog()
@@ -151,12 +152,6 @@ users, shelves = database["users"], database["shelves"]
 current_user,users = user_handle(users)
 database["users"] = users
 save_prog(users)
-
-for i in users:
-    print(i)
-
-for i in shelves:
-    print(i)
 
 # while 1:
 #     """under construction :) """
